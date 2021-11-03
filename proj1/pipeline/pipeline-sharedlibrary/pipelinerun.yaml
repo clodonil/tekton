@@ -1,0 +1,21 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  name: run-sync-sharedlibrary
+  namespace: pipelines-runs
+spec:
+  workspaces:
+    - name: pipeline-ws
+      persistentVolumeClaim:
+         claimName: sharedlibrary-claim
+  resources:
+    - name: sharedlibrary
+      resourceSpec:
+        type: git
+        params:
+          - name: revision
+            value: main
+          - name: url
+            value: 'https://github.com/clodonil/tekton-sharedlibrary'
+  pipelineRef:
+    name: sync-sharedlibrary

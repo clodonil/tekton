@@ -1,0 +1,31 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: deploy
+  namespace: pipelines-runs
+spec:
+  inputs:
+    resources:
+      - name: source
+        type: git
+    params:
+      - name: IMAGE
+        description: Nome da Imagem
+  stepTemplate:
+    workingDir: /workspace/source
+    image: ubuntu
+    
+  steps:
+    - name: deploy
+      script: |
+        #!/usr/bin/env bash
+        apt-get update
+        apt-get install -y apt-transport-https ca-certificates curl
+        curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list
+        apt-get update
+        apt-get install -y kubectl
+        cd pipeline/deploy
+        sed -i -e "s;__IMAGE__;$(inputs.params.IMAGE);g" deploy.yaml
+        kubectl apply -f deploy.yaml 
+            

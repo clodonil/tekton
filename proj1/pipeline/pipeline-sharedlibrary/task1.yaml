@@ -1,0 +1,28 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: sync
+  namespace: pipelines-runs
+spec:
+  resources:
+    inputs:
+    - name: sharedlibrary
+      type: git
+  steps:
+    - name: update-sharedlibrary
+      image: ubuntu
+      script: |
+        #!/usr/bin/env bash
+        echo "Execunto o Task1-Step1"
+        cd workspace/
+        pwd
+        ls -l
+        cd $(workspaces.task-ws.path)
+        rm -rf *
+        cp -ar /workspace/sharedlibrary/* .
+        ls
+        echo "Finalizado"
+  workspaces:
+    - name: task-ws
+      description: The folder where we write the message to
+      mountPath: /mnt/data                  

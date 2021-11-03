@@ -1,0 +1,33 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: basic-example-p4-python
+spec:
+  params:
+    - name: runtime
+      type: string
+      default: python
+  workspaces:
+    - name: pipeline-ws    
+  tasks:
+    - name: p4-task-1
+      taskRef:
+        name: p4-task-1
+      workspaces:
+        - name: task-ws
+          workspace: pipeline-ws  
+      params:
+        - name: runtime
+          value: "$(params.runtime)"        
+    - name: p4-task-2
+      taskRef:
+        name: p4-task-2
+      runAfter:
+        - p4-task-1  
+      workspaces:
+        - name: task-ws
+          workspace: pipeline-ws
+      params:
+        - name: runtime
+          value: "$(params.runtime)"         
+

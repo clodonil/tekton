@@ -1,0 +1,81 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: pipeline-apps
+  namespace: pipelines-runs
+spec:
+  resources:
+    - name: source
+      type: git
+  params:
+    - name: IMAGE
+      description: Nome da Imagem
+    - name: runtime
+      description: Runtime do app  
+  workspaces:
+    - name: pipeline-ws        
+  tasks:
+    - name: ci-build
+      resources:
+        inputs:
+          - name: source
+            resource: source
+      params:    
+        - name: IMAGE
+          value: "$(params.IMAGE)"
+        - name: runtime
+          value: "$(params.runtime)"  
+      workspaces:
+        - name: task-ws
+          workspace: pipeline-ws
+      taskRef:
+        name: ci-build
+    - name: ci-quality
+      workspaces:
+        - name: task-ws
+          workspace: pipeline-ws
+      taskRef:
+        name: ci-quality
+      resources:
+        inputs:
+          - name: source
+            resource: source
+      params:      
+        - name: runtime
+          value: "$(params.runtime)"
+    - name: ci-security
+      taskRef:
+        name: ci-security
+      resources:
+        inputs:
+          - name: source
+            resource: source
+    - name: tests
+      workspaces:
+        - name: task-ws
+          workspace: pipeline-ws
+      taskRef:
+        name: tests
+      resources:
+        inputs:
+          - name: source
+            resource: source
+      params:    
+        - name: IMAGE
+          value: "$(params.IMAGE)"
+      runAfter:
+        - ci-build
+        - ci-quality
+        - ci-security
+    - name: deploy
+      resources:
+        inputs:
+          - name: source
+            resource: source
+      params:    
+        - name: IMAGE
+          value: "$(params.IMAGE)"
+      taskRef:
+        name: deploy
+      runAfter:
+        - tests

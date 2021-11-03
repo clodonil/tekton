@@ -1,0 +1,17 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  name: taskrun-ci-build
+  namespace: pipelines-runs
+spec:
+  inputs:
+    resources:
+        - name: source
+          resourceRef:
+             name: source
+    params:
+      - name: IMAGE
+        value: "clodonil/apphello:1"        
+             
+  taskRef:
+     name: ci-build

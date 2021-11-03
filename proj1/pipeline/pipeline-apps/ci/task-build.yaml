@@ -1,0 +1,52 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: ci-build
+  namespace: pipelines-runs
+spec:
+  inputs:
+    resources:
+      - name: source
+        type: git
+    params:
+      - name: IMAGE
+        description: Nome da Imagem
+      - name: runtime
+        description: Runtime da aplicacao  
+  stepTemplate:
+    workingDir: /workspace/source
+    volumeMounts:
+      - name: containers-storage
+        mountPath: /var/lib/containers          
+  workspaces:
+    - name: task-ws
+      description: The folder where we write the message to
+      mountPath: /mnt/data                  
+  steps:
+    - name: build
+      image: $(inputs.params.runtime)
+      script: |
+        runtime=$(inputs.params.runtime)
+        chmod +x $(workspaces.task-ws.path)/CI/$runtime/build/build.sh
+        [ -f "pipeline/build.sh" ] && chmod +x  pipeline/build.sh
+        [ -f "pipeline/build.sh" ] && pipeline/build.sh || $(workspaces.task-ws.path)/CI/$runtime/build/build.sh 
+    - name: package
+      image: quay.io/buildah/upstream:latest   
+      securityContext:
+        runAsUser: 0
+        privileged: true
+      script: |
+        buildah bud --tag=$(inputs.params.IMAGE) .
+    - name: publish
+      image: quay.io/buildah/upstream:latest
+      securityContext:
+        runAsUser: 0
+        privileged: true
+      script: |
+        buildah push $(inputs.params.IMAGE)
+      volumeMounts:
+         - name: containers-storage
+           mountPath: /var/lib/containers
+  volumes:
+    - name: containers-storage
+      emptyDir: {}              

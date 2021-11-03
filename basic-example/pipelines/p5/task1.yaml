@@ -1,0 +1,21 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: p5-task-1
+spec:
+  steps:
+    - name: step1
+      image: python
+      script: |
+        #!/usr/bin/env bash
+        echo "Execunto o Task1-Step1"
+        cd $(workspaces.task-ws.path)/ci/python/
+        pwd
+        chmod +x $(workspaces.task-ws.path)/ci/python/build.sh 
+        $(workspaces.task-ws.path)/ci/python/build.sh
+        
+        echo "Finalizado"
+  workspaces:
+    - name: task-ws
+      description: The folder where we write the message to
+      mountPath: /mnt/data                

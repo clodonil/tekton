@@ -1,0 +1,17 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: basic-example-p3-maven
+spec:
+  params:
+    - name: runtime
+      type: string
+      default: maven
+  tasks:
+    - name: p3-task-1
+      taskRef:
+        name: p3-task-1
+      params:
+        - name: runtime
+          value: "$(params.runtime)"
+

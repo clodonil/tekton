@@ -1,0 +1,13 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  name: taskrun-ci-quality
+  namespace: pipelines-runs
+spec:
+  inputs:
+    resources:
+        - name: source
+          resourceRef:
+             name: source
+  taskRef:
+     name: ci-quality

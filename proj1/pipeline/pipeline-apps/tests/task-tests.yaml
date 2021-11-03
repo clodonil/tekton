@@ -1,0 +1,41 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: tests
+  namespace: pipelines-runs
+spec:
+  inputs:
+    resources:
+      - name: source
+        type: git
+    params:
+      - name: IMAGE
+        description: Nome da Imagem
+  stepTemplate:
+    workingDir: /workspace/source
+    image: ubuntu
+    volumeMounts:
+      - name: containers-storage
+        mountPath: /var/lib/containers
+  workspaces:
+    - name: task-ws
+      description: The folder where we write the message to
+      mountPath: /mnt/data
+  steps:
+    - name: performance
+      script: |
+        chmod +x $(workspaces.task-ws.path)/TESTS/performance/performance.sh
+        if [ -f pipeline/tests/performance/performance.sh ]; then chmod +x pipeline/tests/performance/performance.sh; fi
+        if [ -f pipeline/tests/performance/performance.sh ]; then pipeline/tests/performance/performance.sh; else $(workspaces.task-ws.path)/TESTS/performance/performance.sh ; fi
+    - name: integration
+      script: |
+        chmod +x $(workspaces.task-ws.path)/TESTS/integration/integration.sh
+        if [ -f pipeline/tests/integration/integration.sh ]; then chmod +x pipeline/tests/integration/integration.sh; fi
+        if [ -f pipeline/tests/integration/integration.sh ]; then pipeline/tests/integration/integration.sh; else $(workspaces.task-ws.path)/TESTS/integration/integration.sh ; fi
+
+  sidecars:
+    - image: $(inputs.params.IMAGE)
+      name: app
+  volumes:
+    - name: containers-storage
+      emptyDir: {}              

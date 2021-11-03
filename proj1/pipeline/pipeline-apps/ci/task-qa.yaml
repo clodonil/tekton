@@ -1,0 +1,32 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: ci-quality
+  namespace: pipelines-runs
+spec:
+  inputs:
+    resources:
+      - name: source
+        type: git
+    params:
+      - name: runtime
+        description: Runtime da aplicacao 
+  stepTemplate:
+    workingDir: /workspace/source
+  workspaces:
+    - name: task-ws
+      description: The folder where we write the message to
+      mountPath: /mnt/data                  
+  steps:
+    - name: unit-testing
+      image: $(inputs.params.runtime)
+      script: |
+        runtime=$(echo "$(inputs.params.runtime)" | cut -d : -f 1)
+        chmod +x $(workspaces.task-ws.path)/CI/$runtime/tests/unittest.sh
+        [ -f "pipeline/unittest.sh" ] && chmod +x  pipeline/unittest.sh
+        [ -f "pipeline/unittest.sh" ] && pipeline/unittest.sh || $(workspaces.task-ws.path)/CI/$runtime/tests/unittest.sh 
+    - name: sonar
+      image: $(inputs.params.runtime)
+      script: |
+        chmod +x $(workspaces.task-ws.path)/CI/$(inputs.params.runtime)/sonar/sonar.sh
+        $(workspaces.task-ws.path)/CI/$(inputs.params.runtime)/sonar/sonar.sh

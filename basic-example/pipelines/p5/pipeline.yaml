@@ -1,0 +1,16 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: basic-example-p5
+spec:
+  workspaces:
+    - name: pipeline-ws   
+  tasks:
+    - name: p5-task-1
+      taskRef:
+        name: p5-task-1
+      workspaces:
+        - name: task-ws
+          workspace: pipeline-ws    
+  
+

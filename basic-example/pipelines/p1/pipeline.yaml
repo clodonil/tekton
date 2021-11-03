@@ -1,0 +1,26 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: basic-example-p1
+spec:
+  tasks:
+    - name: task-1
+      taskRef:
+        name: task-1
+    - name: task-2
+      taskRef:
+        name: task-2
+      runAfter:
+        - task-1  
+    - name: task-3
+      taskRef:
+        name: task-3
+      runAfter:
+        - task-1
+    - name: task-4
+      taskRef:
+        name: task-4
+      runAfter:
+        - task-2
+        - task-3
+

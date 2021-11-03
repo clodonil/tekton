@@ -1,0 +1,26 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  name: pipelinerun-apps-node
+  namespace: pipelines-runs
+spec:
+  workspaces:
+    - name: pipeline-ws
+      persistentVolumeClaim:
+         claimName: sharedlibrary-claim
+  params:
+    - name: IMAGE
+      value: "clodonil/npm:1"
+    - name: runtime
+      value: "node"  
+  resources:
+    - name: source
+      resourceSpec:
+        type: git
+        params:
+          - name: revision
+            value: master
+          - name: url
+            value: 'https://github.com/clodonil/typescript-ex.git'
+  pipelineRef:
+    name: pipeline-apps

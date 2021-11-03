@@ -1,0 +1,24 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: sync-sharedlibrary
+  namespace: pipelines-runs
+spec:
+  resources:
+  - name: sharedlibrary
+    type: git
+  workspaces:
+    - name: pipeline-ws     
+  tasks:
+    - name: sync
+      taskRef:
+        name: sync
+      resources:
+        inputs:
+        - name: sharedlibrary
+          resource: sharedlibrary        
+      workspaces:
+        - name: task-ws
+          workspace: pipeline-ws  
+  
+

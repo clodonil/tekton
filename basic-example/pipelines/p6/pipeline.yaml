@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: basic-example-p6
+spec:
+  resources:
+  - name: sharedlibrary
+    type: git
+  workspaces:
+    - name: pipeline-ws     
+  tasks:
+    - name: p6-task-1
+      taskRef:
+        name: p6-task-1
+      resources:
+        inputs:
+        - name: sharedlibrary
+          resource: sharedlibrary        
+      workspaces:
+        - name: task-ws
+          workspace: pipeline-ws  
+  
+

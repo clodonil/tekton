@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build-test-deploy-app
+spec:
+  resources:
+  - name: git
+    type: git
+  tasks:
+    - name: build-test-app-task
+      taskRef:
+        name: build-test-app-task
+      resources:
+        inputs:
+        - name: git
+          resource: git
+    - name:  deploy-app-task
+      taskRef:
+        name:  deploy-app-task
+      runAfter:
+        - build-test-app-task
+

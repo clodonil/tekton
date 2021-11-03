@@ -1,0 +1,15 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  name: pipeline-run-p6-2
+spec:
+  workspaces:
+    - name: pipeline-ws
+      persistentVolumeClaim:
+         claimName: sharedlibrary-claim
+  resources:
+  - name: sharedlibrary
+    resourceRef:
+        name: sharedlibrary
+  pipelineRef:
+    name: basic-example-p6
